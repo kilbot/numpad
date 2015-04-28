@@ -1,0 +1,21 @@
+{
+  "name": "buttons",
+  "version": "1.0.0",
+  "description": "Stateful Buttons using Backbone Marionette",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kilbot/buttons.git"
+  },
+  "keywords": [
+    "marionette",
+    "backbone",
+    "buttons"
+  ],
+  "author": "kilbot",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kilbot/buttons/issues"
+  },
+  "homepage": "https://github.com/kilbot/buttons"
+}

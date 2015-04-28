@@ -1,2 +1,3 @@
-# buttons
-Backbone Marionette stateful buttons
+## Stateful Buttons using Backbone Marionette
+
+### [Demo](http://kilbot.github.io/buttons/)

@@ -1,2 +1,1 @@
-# buttons
-Backbone Marionette stateful buttons
+# Stateful buttons using Backbone Marionette

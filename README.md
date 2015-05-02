@@ -1,3 +1,3 @@
-## Stateful Buttons using Backbone Marionette
+## Numpad demo using Backbone Marionette
 
-### [Demo](http://kilbot.github.io/buttons/)
+### [Demo](http://kilbot.github.io/numpad/)

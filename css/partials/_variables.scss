@@ -1,0 +1,13 @@
+$numpad-bg: #ccc;
+$text-color: #444;
+$inverse-text-color: #eee;
+$spacing: 5px;
+$cursor-disabled: not-allowed;
+$base-text-color      : black;
+$secondary-text-color : lighten($base-text-color, 46%);
+$border-color         : lighten($base-text-color, 91%);
+$input-border-color   : darken($border-color, 5%);
+$btn-default-color    : #333;
+$btn-default-bg       : #f3f3f3;
+$btn-default-border   : $input-border-color;
+$border-radius-small  : 3px !default;

@@ -17,7 +17,11 @@ module.exports = function(grunt) {
       },
       js: {
         files: ['<%= jshint.files %>', 'js/*.hbs'],
-        tasks: ['webpack', 'jshint']
+        tasks: ['webpack', 'jshint', 'simplemocha']
+      },
+      test: {
+        files: ['tests/test.js'],
+        tasks: ['simplemocha']
       },
       demo: {
         files: ['demo/index.html']
@@ -99,12 +103,31 @@ module.exports = function(grunt) {
           open: 'http://localhost:9001/demo/'
         }
       }
+    },
+
+    // tests
+    simplemocha: {
+      options: {
+        globals: ['should'],
+        //timeout: 3000,
+        //ignoreLeaks: false,
+        //grep: '*-test',
+        //ui: 'bdd',
+        reporter: 'spec'
+      },
+
+      all: {
+        src: [
+          'tests/setup.js',
+          'tests/test.js'
+        ]
+      }
     }
 
   });
 
   // dev
-  grunt.registerTask('dev', ['compass', 'jshint', 'webpack', 'connect', 'watch']);
+  grunt.registerTask('dev', ['compass', 'jshint', 'webpack', 'simplemocha', 'connect', 'watch']);
 
   // default
   grunt.registerTask('default', ['dev']);

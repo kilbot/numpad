@@ -1,3 +1,18 @@
+body {
+  background-color: $body-bg;
+}
+
 #page {
   padding: 20px;
+  > div {
+    margin-bottom: 20px;
+  }
+}
+
+.numpad {
+  border: 1px solid lighten($numpad-bg, 10%);
+}
+
+h1 {
+  color: $inverse-text-color;
 }

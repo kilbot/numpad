@@ -433,11 +433,35 @@ th {
   padding: 0;
 }
 
+/* line 1, ../css/partials/_scaffold.scss */
+body {
+  background-color: #455a64;
+}
+
+/* line 5, ../css/partials/_scaffold.scss */
+#page {
+  padding: 20px;
+}
+/* line 7, ../css/partials/_scaffold.scss */
+#page > div {
+  margin-bottom: 20px;
+}
+
+/* line 12, ../css/partials/_scaffold.scss */
+.numpad {
+  border: 1px solid #5a7582;
+}
+
+/* line 16, ../css/partials/_scaffold.scss */
+h1 {
+  color: #fff;
+}
+
 /* line 1, ../css/partials/_numpad.scss */
 .numpad-header {
-  padding: 1.25px;
+  padding: 6px;
   background-color: transparent;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #5a7582;
   display: -webkit-flex;
   display: flex;
   -webkit-align-items: center;
@@ -447,21 +471,21 @@ th {
 .numpad-header .title {
   -webkit-flex: 1;
   flex: 1;
-  color: #eee;
+  color: #fff;
 }
 /* line 11, ../css/partials/_numpad.scss */
 .numpad-header span {
-  color: #eee;
+  color: #fff;
 }
 /* line 14, ../css/partials/_numpad.scss */
 .numpad-header .input-group {
-  margin-left: 1.25px;
+  margin-left: 6px;
 }
 /* line 19, ../css/partials/_numpad.scss */
 .numpad-header .input-toggle:not(.toggle) span:first-of-type a {
   cursor: not-allowed;
   pointer-events: none;
-  color: #444;
+  color: #222;
 }
 /* line 24, ../css/partials/_numpad.scss */
 .numpad-header .input-toggle:not(.toggle) input:last-of-type {
@@ -471,7 +495,7 @@ th {
 .numpad-header .input-toggle.toggle span:last-of-type a {
   cursor: not-allowed;
   pointer-events: none;
-  color: #444;
+  color: #222;
 }
 /* line 34, ../css/partials/_numpad.scss */
 .numpad-header .input-toggle.toggle input:first-of-type {
@@ -492,7 +516,7 @@ th {
 .numpad-keys .keys {
   -webkit-flex: 3;
   flex: 3;
-  padding: 0.625px;
+  padding: 3px;
   min-width: 180px;
 }
 /* line 50, ../css/partials/_numpad.scss */
@@ -501,7 +525,7 @@ th {
   line-height: 50px;
   -webkit-flex: 1 0 50px;
   flex: 1 0 50px;
-  margin: 0.625px;
+  margin: 3px;
   padding: 0;
   text-align: center;
   text-decoration: none;
@@ -537,7 +561,7 @@ th {
   display: flex;
   -webkit-flex-direction: column;
   flex-direction: column;
-  border-left: 1px solid #e6e6e6;
+  border-left: 1px solid #5a7582;
   min-width: 65px;
 }
 /* line 67, ../css/partials/_numpad.scss */
@@ -571,7 +595,7 @@ th {
 /* line 4, ../css/partials/_form.scss */
 .input-group .form-control, .input-group .input-group-addon, .input-group .input-group-btn, .input-group .input-text {
   border: 1px solid #dbdbdb;
-  padding: 1.25px 2.0833333333px;
+  padding: 6px 10px;
 }
 /* line 7, ../css/partials/_form.scss */
 .input-group .form-control:first-child, .input-group .input-group-addon:first-child, .input-group .input-group-btn:first-child, .input-group .input-text:first-child {
@@ -598,13 +622,13 @@ th {
 .input-group .input-group-btn > a {
   background: #dbdbdb;
   display: inline-block;
-  padding: 1.25px 2.0833333333px;
+  padding: 6px 10px;
 }
 /* line 28, ../css/partials/_form.scss */
 .input-group .input-group-btn > a.disabled {
   cursor: not-allowed;
   pointer-events: none;
-  color: #444;
+  color: #222;
 }
 /* line 35, ../css/partials/_form.scss */
 .input-group .form-control, .input-group .input-text {
@@ -623,9 +647,9 @@ th {
 /* line 45, ../css/partials/_form.scss */
 .input-group .clear {
   display: none;
-  color: #444;
+  color: #222;
   background: white;
-  padding: 1.25px 2.0833333333px;
+  padding: 6px 10px;
   line-height: 20px;
   border-top: 1px solid #dbdbdb;
   border-bottom: 1px solid #dbdbdb;

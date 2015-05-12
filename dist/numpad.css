@@ -487,19 +487,11 @@ h1 {
   pointer-events: none;
   color: #222;
 }
-/* line 24, ../css/partials/_numpad.scss */
-.numpad-header .input-toggle:not(.toggle) input:last-of-type {
-  display: none;
-}
 /* line 29, ../css/partials/_numpad.scss */
 .numpad-header .input-toggle.toggle span:last-of-type a {
   cursor: not-allowed;
   pointer-events: none;
   color: #222;
-}
-/* line 34, ../css/partials/_numpad.scss */
-.numpad-header .input-toggle.toggle input:first-of-type {
-  display: none;
 }
 
 /* line 41, ../css/partials/_numpad.scss */

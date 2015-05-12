@@ -2,21 +2,19 @@
   <div class="numpad-header">
     <strong class="title">{{label}}</strong>
 
-  {{#if numpad.amount}}
-    <div class="input-group">
-      <span class="input-group-addon">{{{currency.symbol}}}</span>
-      <input type="text" name="{{name}}" class="form-control autogrow">
+    {{#if input}}
+    <div class="input-group {{#if input.toggle}}input-toggle{{/if}}">
+      {{#if input.left}}
+        {{#if input.left.addOn}}<span class="input-group-addon">{{{input.left.addOn}}}</span>{{/if}}
+        {{#if input.left.btn}}<span class="input-group-btn"><a href="#" data-btn="left">{{{input.left.btn}}}</a></span>{{/if}}
+      {{/if}}
+      <input type="text" name="value" class="form-control autogrow">
+      {{#if input.right}}
+        {{#if input.right.btn}}<span class="input-group-btn"><a href="#" data-btn="right">{{{input.right.btn}}}</a></span>{{/if}}
+        {{#if input.right.addOn}}<span class="input-group-addon">{{{input.right.addOn}}}</span>{{/if}}
+      {{/if}}
     </div>
-  {{/if}}
-
-  {{#if numpad.discount}}
-    <div class="input-group input-toggle">
-      <span class="input-group-btn"><a href="#" data-modifier="value">{{{currency.symbol}}}</a></span>
-      <input type="text" name="{{name}}" class="form-control autogrow">
-      <input type="text" name="percentage" class="form-control autogrow">
-      <span class="input-group-btn"><a href="#" data-modifier="percentage">%</a></span>
-    </div>
-  {{/if}}
+    {{/if}}
 
   </div>
 
@@ -40,33 +38,21 @@
       <div class="row">
         <a href="#" data-key="0" class="btn">0</a>
         <a href="#" data-key="00" class="btn">00</a>
-        <a href="#" data-key="." class="btn decimal">{{{currency.decimal}}}</a>
+        <a href="#" data-key="." class="btn decimal">{{{decimal}}}</a>
       </div>
     </div>
     <div class="keys common extra-keys">
       <a href="#" data-key="del" class="btn"><i class="icon icon-delete"><span>del</span></i></a>
       <a href="#" data-key="+/-" class="btn">+/-</a>
-      <a href="#" data-key="ret" class="btn return">{{buttons.return}}</a>
+      <a href="#" data-key="ret" class="btn return">{{return}}</a>
     </div>
 
-    {{#if numpad.discount}}
-      {{#if numpad.discount.keys}}
-      <div class="keys extra-keys discount">
-        {{#each numpad.discount.keys}}
-          <a href="#" data-key="{{this}}" class="btn">{{this}}%</a>
-        {{/each}}
-      </div>
-      {{/if}}
-    {{/if}}
-
-    {{#if numpad.amount}}
-      {{#if numpad.amount.keys}}
-      <div class="keys extra-keys cash">
-        {{#each numpad.amount.keys}}
+    {{#if keys}}
+      <div class="keys extra-keys">
+        {{#each keys}}
           <a href="#" data-key="{{this}}" class="btn">{{this}}</a>
         {{/each}}
       </div>
-      {{/if}}
     {{/if}}
 
   </div>

@@ -1,3 +1,4 @@
+/* jshint -W071 */
 (function () {
 
   // global variables
@@ -5,12 +6,28 @@
       _ = window._,
       bb = window.Backbone,
       Mn = window.Marionette,
+      accounting = window.accounting,
       Numpad = window.Numpad;
+
+  accounting.settings = {
+    currency: {
+      symbol : '$',   // default currency symbol is '$'
+      format: '%s%v', // controls output: %s = symbol, %v = value/number
+      decimal : ',',  // decimal point separator
+      thousand: '.',  // thousands separator
+      precision : 3   // decimal places
+    },
+    number: {
+      precision : 3,  // default precision on numbers is 0
+      thousand: '.',
+      decimal : ','
+    }
+  };
 
   var numpadService = new Numpad.Service();
 
   function rand(){
-    var x = _.random(0, 10, true).toFixed(2);
+    var x = _.random(0, 10, true).toFixed(3);
     if( _.random(0, 1) ){
       return parseFloat(x);
     }
@@ -22,15 +39,16 @@
    * - attribute name = input[name]
    */
   var model = new bb.Model({
+    input1: rand(),
     input2: rand(),
-    input3: rand(),
+    input3: 0,
     input4: rand()
   });
 
   /**
-   * Service 1
+   * Service 0
    */
-  var Service1 = bb.Radio.request('numpad', 'view', {
+  var Service0 = bb.Radio.request('numpad', 'view', {
     label: 'Simple Numpad'
   });
 
@@ -41,6 +59,7 @@
     template: '#page',
 
     regions: {
+      n0: '#numpad0',
       n1: '#numpad1',
       n2: '#numpad2',
       n3: '#numpad3',
@@ -57,19 +76,48 @@
       'open:numpad': 'openNumpad'
     },
 
+    bindings: {
+      'input[name="input1"]': {
+        observe: 'input1',
+        onGet: accounting.formatNumber,
+        onSet: accounting.unformat
+      },
+      'input[name="input2"]': {
+        observe: 'input2',
+        onGet: accounting.formatNumber,
+        onSet: accounting.unformat
+      },
+      'input[name="input3"]': {
+        observe: 'input3',
+        onGet: accounting.formatNumber,
+        onSet: accounting.unformat
+      },
+      'input[name="input4"]': {
+        observe: 'input4',
+        onGet: accounting.formatNumber,
+        onSet: accounting.unformat
+      }
+    },
+
+    render: function(){
+      var args = Array.prototype.slice.apply(arguments);
+      var result = Mn.LayoutView.prototype.render.apply(this, args);
+
+      this.stickit();
+
+      return result;
+    },
+
     onRender: function(){
-      var n1 = this.showChildView( 'n1', Service1 );
-      n1.currentView.on('event', function(){
+      var n0 = this.showChildView( 'n0', Service0 );
+      n0.currentView.on('event', function(){
         console.log(arguments);
       });
 
-      this.$('#input2').val( this.model.get('input2') );
-      this.$('#input3').val( this.model.get('input3') );
-      this.$('#input4').val( this.model.get('input4') );
-
-      this.$('#input2').trigger('open:numpad', 'n2');
-      this.$('#input3').trigger('click', true);
-      this.$('#input4').trigger('open:numpad', 'n4');
+      this.$('[name="input1"]').trigger('open:numpad', 'n1');
+      this.$('[name="input2"]').trigger('open:numpad', 'n2');
+      this.$('[name="input3"]').trigger('click', true);
+      this.$('[name="input4"]').trigger('open:numpad', 'n4');
     },
 
     openNumpad: function(e, regionId){
@@ -79,7 +127,7 @@
       var target = $(e.target);
       var options = _.defaults( target.data(), {
         target: target,
-        model: model
+        parent: this
       });
 
       var numpad = bb.Radio.request('numpad', 'view', options);
@@ -91,7 +139,6 @@
     }
 
   });
-
 
   var Application = Mn.Application.extend({
     initialize: function(){
@@ -106,3 +153,4 @@
   window.app = new Application();
 
 })();
+/* jshint +W071 */

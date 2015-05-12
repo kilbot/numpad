@@ -60,7 +60,7 @@ module.exports = function(grunt) {
         },
         module: {
           loaders: [
-            { test: /\.hbs$/, loader: 'raw-loader' }
+            { test: /(\.hbs|\.json)$/, loader: 'raw-loader' }
           ]
         },
         resolve: {

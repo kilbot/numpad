@@ -21,9 +21,9 @@
         pointer-events: none; // Future-proof disabling of clicks
         color: $text-color;
       }
-      input:last-of-type {
-        display: none;
-      }
+//      input:last-of-type {
+//        display: none;
+//      }
     }
     &.toggle {
       span:last-of-type a {
@@ -31,9 +31,9 @@
         pointer-events: none; // Future-proof disabling of clicks
         color: $text-color;
       }
-      input:first-of-type {
-        display: none;
-      }
+//      input:first-of-type {
+//        display: none;
+//      }
     }
   }
 }

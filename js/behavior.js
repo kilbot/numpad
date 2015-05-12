@@ -4,7 +4,7 @@ var Modernizr = {
 };
 var Radio = require('backbone.radio');
 var $ = require('jquery');
-//var _ = require('lodash');
+var _ = require('lodash');
 
 module.exports = Mn.Behavior.extend({
 
@@ -32,7 +32,12 @@ module.exports = Mn.Behavior.extend({
     // normally would init Popover view here via Popover Service
     if(!arg){ return; }
 
-    var numpad = Radio.request('numpad', 'view', target.data());
+    var options = _.defaults( target.data(), {
+      target: target,
+      parent: this.view
+    });
+
+    var numpad = Radio.request('numpad', 'view', options);
 
     var region = this.view.getRegion('n3').show(numpad);
     this.listenTo(region.currentView, {

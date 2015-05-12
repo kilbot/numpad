@@ -1,12 +1,14 @@
+
 var _ = require('lodash');
 var accounting = require('accounting');
+var d = require('./denominations.json');
 
-// example denominations
-var denominations = {
-  name: 'US Dollars',
-  coins: [ 0.05, 0.1, 0.25, 0.5, 1 ],
-  notes: [ 1, 2, 5, 10, 20, 50, 100 ]
-};
+if( _.isString(d) ){
+  var JSON = global['JSON'];
+  d = JSON.parse(d);
+}
+
+/* jshint -W071 */
 
 function round(num){
   return parseFloat( accounting.toFixed(num, 2) );
@@ -17,29 +19,36 @@ function nearest(num, dem){
   return round(n);
 }
 
-module.exports = function(amount){
-  var keys = [amount];
+module.exports = function(amount, currency){
+  var keys = [amount],
+      denominations = d[currency] || d['USD'];
 
   if(amount === 0) {
     return denominations.notes.slice(-4);
   }
 
-  // round for two coins
+  // remove 1 & 2 cents
+  _.pull( denominations.coins, 0.01, 0.02 );
+
+  // find nearest match for coins
   _.each( denominations.coins, function(coin) {
     keys.push( nearest(amount, coin) );
   });
 
-  // removes smaller amounts, eg: 9.96: [9.97, 10, 20, 50], removes 9.97
-  if(round(keys[1] - keys[0]) === denominations.coins[0]){
-    keys.splice(1, 1);
+  // unique, sorted
+  keys = _.chain(keys).uniq().sortBy().value();
+
+  // higher rep of coin for low amounts
+  if(amount > denominations.notes[0]){
+    keys.slice(0, 3);
   }
 
-  keys = _.uniq(keys).slice(0, 3);
-
-  // round for two notes
+  // find nearest match for notes
   _.each( denominations.notes, function(note) {
     keys.push( nearest(amount, note) );
   });
 
-  return _.uniq(keys).slice(1, 5);
+  // return 4 results - unique, sorted
+  return _.chain(keys).uniq().sortBy().value().slice(1, 5);
 };
+/* jshint +W071 */

@@ -244,14 +244,6 @@
 	        } else {
 	          return accounting.formatNumber(arr[0]);
 	        }
-	      },
-	      onSet: function(val){
-	        val = accounting.unformat(val);
-	        if(this.model.get('active') === 'percentage'){
-	          this.model.set({ percentage: val });
-	        } else {
-	          this.model.set({ value: val });
-	        }
 	      }
 	    },
 	    '.numpad-discount [data-btn="left"]': {

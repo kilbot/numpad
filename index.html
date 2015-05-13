@@ -1,29 +1,33 @@
 <html>
 <head>
   <title>Numpad demo using Backbone Marionette</title>
-  <link rel="stylesheet" href="//rawgit.com/kilbot/numpad/master/dist/numpad.css" type="text/css" />
+  <link rel="stylesheet" href="../dist/numpad.css" type="text/css" />
 </head>
 <body>
-  <div id="page">
-    <div id="numpad1"></div>
+<div id="page">
+  <div id="numpad0"></div>
 
-    <input id="input2" name="input2" type="text" data-label="Discount Numpad" data-numpad="discount">
-    <div id="numpad2"></div>
+  <input name="input1" type="text" data-label="Quantity" data-numpad="quantity">
+  <div id="numpad1"></div>
 
-    <input id="input3" name="input3" type="text" data-label="Discount 2 Numpad" data-numpad="discount">
-    <div id="numpad3"></div>
+  <input name="input2" type="text" data-label="Discount Numpad" data-numpad="discount" data-original="9.99" data-percentage="off">
+  <div id="numpad2"></div>
 
-    <input id="input4" name="input4" type="text" data-label="Cash Numpad" data-numpad="cash">
-    <div id="numpad4"></div>
-  </div>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.7.0/lodash.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.radio/0.9.0/backbone.radio.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.4.1/backbone.marionette.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.2/handlebars.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
-  <script src="//rawgit.com/kilbot/numpad/master/dist/numpad.js"></script>
-  <script src="//rawgit.com/kilbot/numpad/master/demo/script.js"></script>
+  <input name="input3" type="text" data-label="Discount 2 Numpad" data-numpad="discount" data-original="9.99">
+  <div id="numpad3"></div>
+
+  <input name="input4" type="text" data-label="Cash Numpad" data-numpad="cash">
+  <div id="numpad4"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.7.0/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.radio/0.9.0/backbone.radio.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.4.1/backbone.marionette.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.2/handlebars.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
+<script src="https://rawgit.com/NYTimes/backbone.stickit/master/backbone.stickit.js"></script>
+<script src="../dist/numpad.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

@@ -7,6 +7,8 @@ describe('Numpad', function() {
     beforeEach(function(){
       this.model = new Model({
         value  : 9.99
+      }, {
+        original : 15
       });
     });
 
@@ -38,14 +40,14 @@ describe('Numpad', function() {
     it('should clear input', function(){
       this.model.clearInput();
       this.model.get('value').should.eql(0);
-    })
+    });
 
     it('should add input', function(){
       this.model.clearInput().key(1);
       this.model.get('value').should.eql(1);
       this.model.key(0);
       this.model.get('value').should.eql(10);
-    })
+    });
 
     it('should handle decimals', function(){
       this.model.decimal();
@@ -58,7 +60,68 @@ describe('Numpad', function() {
       this.model.get('value').should.eql(0);
       this.model.key(1).key(1);
       this.model.get('value').should.eql(0.11);
-    })
+    });
+
+    it('should toggle quantity up and down', function(){
+      this.model.quantity('increase');
+      this.model.get('value').should.eql(10.99);
+
+      this.model.quantity('decrease');
+      this.model.get('value').should.eql(9.99);
+
+      // default is decrease
+      this.model.quantity();
+      this.model.get('value').should.eql(8.99);
+    });
+
+    it('should calculate the percentage', function(){
+      this.model.get('original').should.eql(15);
+      this.model.get('percentage').should.eql( (9.99/15)*100 );
+    });
+
+    it('should change the percentage on value change', function(){
+      this.model.set({ value: 12 });
+      this.model.get('percentage').should.eql( (12/15)*100 );
+    });
+
+    it('should change the value on percentage change', function(){
+      this.model.set({ percentage: 60 });
+      this.model.get('value').should.eql( 9 );
+    });
+
+    it('should toggle the active input value', function(){
+      this.model.toggle('percentage');
+      this.model.get('active').should.eql('percentage');
+      this.model.toggle('percentage');
+      this.model.get('active').should.eql('value');
+    });
+
+    it('should calculate the percentage-off', function(){
+      var model = new Model({ value  : 9.99}, {
+        original    : 15,
+        percentage  : 'off'
+      });
+      model.get('original').should.eql(15);
+      model.get('percentage').should.eql( 100 - (9.99/15)*100 );
+    });
+
+    it('should change the percentage-off on value change', function(){
+      var model = new Model({ value  : 9.99}, {
+        original    : 15,
+        percentage  : 'off'
+      });
+      model.set({ value: 12 });
+      model.get('percentage').should.eql( 100 - (12/15)*100 );
+    });
+
+    it('should change the value on percentage-off change', function(){
+      var model = new Model({ value  : 9.99}, {
+        original    : 15,
+        percentage  : 'off'
+      });
+      model.set({ percentage: 60 });
+      model.get('value').should.eql( 6 );
+    });
 
   });
 

@@ -110,7 +110,7 @@
 
     onRender: function(){
       var n0 = this.showChildView( 'n0', Service0 );
-      n0.currentView.on('event', function(){
+      n0.currentView.on('input', function(){
         console.log(arguments);
       });
 
@@ -126,18 +126,16 @@
       // get setup options from target
       var target = $(e.target);
       var options = _.defaults( target.data(), {
-        target: target,
-        parent: this
+        value : this.model.get( target.attr('name') )
       });
 
       var numpad = bb.Radio.request('numpad', 'view', options);
 
       var region = this.showChildView( regionId, numpad );
-      region.currentView.on('event', function(){
+      region.currentView.on('input', function(){
         console.log(arguments);
       });
     }
-
   });
 
   var Application = Mn.Application.extend({

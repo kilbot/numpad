@@ -33,17 +33,14 @@ module.exports = Mn.Behavior.extend({
     if(!arg){ return; }
 
     var options = _.defaults( target.data(), {
-      target: target,
-      parent: this.view
+      value : this.view.model.get( target.attr('name') )
     });
 
     var numpad = Radio.request('numpad', 'view', options);
 
     var region = this.view.getRegion('n3').show(numpad);
-    this.listenTo(region.currentView, {
-      'all': function(e){
-        console.log(e);
-      }
+    this.listenTo(region.currentView, 'input', function(value){
+      target.val(value).trigger('input');
     });
 
   }

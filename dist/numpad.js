@@ -89,17 +89,14 @@
 	    if(!arg){ return; }
 
 	    var options = _.defaults( target.data(), {
-	      target: target,
-	      parent: this.view
+	      value : this.view.model.get( target.attr('name') )
 	    });
 
 	    var numpad = Radio.request('numpad', 'view', options);
 
 	    var region = this.view.getRegion('n3').show(numpad);
-	    this.listenTo(region.currentView, {
-	      'all': function(e){
-	        console.log(e);
-	      }
+	    this.listenTo(region.currentView, 'input', function(value){
+	      target.val(value).trigger('input');
 	    });
 
 	  }
@@ -167,22 +164,23 @@
 	var accounting = global['accounting'];
 
 	// numpad header input btns
+	// - could be improved if _.result allowed custom bind?
 	var inputBtns = {
 	  amount: function(){
 	    return {
-	      left: { addOn: accounting.settings.currency.symbol }
+	      left: { addOn: this.symbol }
 	    };
 	  },
 	  discount: function(){
 	    return {
-	      left: { btn: accounting.settings.currency.symbol },
+	      left: { btn: this.symbol },
 	      right: { btn: '%' },
 	      toggle: true
 	    };
 	  },
 	  cash: function(){
 	    return {
-	      left: { addOn: accounting.settings.currency.symbol }
+	      left: { addOn: this.symbol }
 	    };
 	  },
 	  quantity: function(){
@@ -194,6 +192,7 @@
 	};
 
 	// numpad extra keys
+	// - could be improved if _.result allowed custom bind?
 	var extraKeys = {
 	  amount: function(){},
 	  discount: function(){
@@ -208,23 +207,18 @@
 	  template: hbs.compile(tmpl),
 
 	  viewOptions: [
-	    'target', 'parent', 'numpad', 'label', 'decimal', 'name', 'value'
+	    'numpad', 'label', 'value', 'decimal', 'symbol'
 	  ],
 
 	  initialize: function(options){
 	    options = options || {};
 
-	    // get name and value from target / parent.model
-	    options.name = options.target ? options.target.attr('name') : 'numpad';
-	    if(options.parent){
-	      options.value = options.parent.model.get(options.name);
-	    } else {
-	      options.value = 0;
-	    }
-
 	    options = _.defaults(options, {
+	      label   : 'Numpad',
 	      numpad  : 'amount',
-	      decimal : accounting.settings.currency.decimal
+	      value   : 0,
+	      decimal : accounting.settings.currency.decimal,
+	      symbol  : accounting.settings.currency.symbol
 	    });
 
 	    this.mergeOptions(options, this.viewOptions);
@@ -242,14 +236,52 @@
 	  },
 
 	  bindings: {
-	    'input[name="value"]': 'value'
+	    'input[name="value"]': {
+	      observe: ['value', 'percentage', 'active'],
+	      onGet: function(arr){
+	        if(arr[2] === 'percentage'){
+	          return accounting.formatNumber(arr[1]);
+	        } else {
+	          return accounting.formatNumber(arr[0]);
+	        }
+	      },
+	      onSet: function(val){
+	        val = accounting.unformat(val);
+	        if(this.model.get('active') === 'percentage'){
+	          this.model.set({ percentage: val });
+	        } else {
+	          this.model.set({ value: val });
+	        }
+	      }
+	    },
+	    '.numpad-discount [data-btn="left"]': {
+	      observe: ['value', 'percentage', 'active'],
+	      onGet: function(arr){
+	        if(arr[2] === 'percentage'){
+	          return accounting.formatMoney(arr[0]);
+	        } else {
+	          return this.symbol;
+	        }
+	      }
+	    },
+	    '.numpad-discount [data-btn="right"]': {
+	      observe: ['percentage', 'value', 'active'],
+	      onGet: function(arr){
+	        if(arr[2] === 'percentage'){
+	          return '%';
+	        } else {
+	          return accounting.toFixed(arr[0], 0) + '%';
+	        }
+	      }
+	    }
 	  },
 
 	  templateHelpers: function(){
 	    var data = {
+	      numpad  : this.numpad,
 	      label   : this.label,
-	      input   : inputBtns[this.numpad](),
-	      keys    : extraKeys[this.numpad](this.value),
+	      input   : inputBtns[this.numpad].call(this),
+	      keys    : extraKeys[this.numpad].call(this, this.value),
 	      decimal : this.decimal,
 	      'return': 'return'
 	    };
@@ -258,15 +290,32 @@
 	  },
 
 	  ui: {
+	    input   : '.numpad-header input',
+	    toggle  : '.numpad-header .input-group',
 	    common  : '.numpad-keys .common .btn',
 	    discount: '.numpad-keys .discount .btn',
 	    cash    : '.numpad-keys .cash .btn'
 	  },
 
 	  events: {
+	    'click @ui.toggle a': 'toggle',
 	    'click @ui.common'  : 'commonKeys',
 	    'click @ui.discount': 'discountKeys',
 	    'click @ui.cash'    : 'cashKeys'
+	  },
+
+	  toggle: function(e){
+	    e.preventDefault();
+	    var modifier = $(e.currentTarget).data('btn');
+
+	    if(this.numpad === 'quantity'){
+	      this.model.quantity( modifier === 'right' ? 'increase' : 'decrease' );
+	    }
+
+	    if(this.numpad === 'discount'){
+	      this.ui.toggle.toggleClass('toggle');
+	      this.model.toggle('percentage');
+	    }
 	  },
 
 	  /* jshint -W074 */
@@ -276,8 +325,7 @@
 
 	    switch(key) {
 	      case 'ret':
-	        this.trigger('input');
-	        this.target.popover('hide');
+	        this.trigger('input', this.model.get('value'), this.model);
 	        return;
 	      case 'del':
 	        if(this.selected) {
@@ -303,10 +351,18 @@
 
 	  discountKeys: function(e){
 	    e.preventDefault();
+	    var key = $(e.currentTarget).data('key');
+	    this.model.set({
+	      active: 'percentage',
+	      percentage: key.replace('%', '')
+	    });
+	    this.ui.toggle.addClass('toggle');
 	  },
 
 	  cashKeys: function(e){
 	    e.preventDefault();
+	    var key = $(e.currentTarget).data('key');
+	    this.model.clearInput().key(key);
 	  }
 
 	});
@@ -336,6 +392,24 @@
 	  initialize: function(attributes, options){
 	    options = options || {};
 	    this.numpad = options.numpad;
+
+	    if(options.original){
+	      if(options.percentage === 'off'){
+	        this.percentageOff = true;
+	      }
+
+	      this.set({ original: options.original });
+	      this.set({ percentage: this.calcPercentage() });
+
+	      this.on({
+	        'change:value': function(){
+	          this.set({ percentage: this.calcPercentage() }, { silent: true });
+	        },
+	        'change:percentage': function(){
+	          this.set({ value: this.calcValue() }, { silent: true });
+	        }
+	      });
+	    }
 	  },
 
 	  // helper set with check for valid float value
@@ -384,6 +458,34 @@
 	    var num = this.get( name ).toString();
 	    this.dec = num.indexOf('.') === -1 ? '.' : '';
 	    return this;
+	  },
+
+	  quantity: function( type ) {
+	    var name = this.get('active');
+	    var num = this.get( name );
+	    this._set( name, (type === 'increase' ? ++num : --num) );
+	    return this;
+	  },
+
+	  calcPercentage: function(){
+	    var percentage = ( this.get('value') / this.get('original') ) * 100;
+	    if(this.percentageOff){
+	      return 100 - percentage;
+	    }
+	    return percentage;
+	  },
+
+	  calcValue: function(){
+	    var multiplier = this.get('percentage') / 100;
+	    if(this.percentageOff){
+	      return ( 1 - multiplier ) * this.get('original');
+	    }
+	    return multiplier * this.get('original');
+	  },
+
+	  toggle: function(attr){
+	    var active = this.get('active');
+	    this.set({ active: (attr === active ? 'value' : attr) });
 	  }
 
 	});
@@ -464,7 +566,7 @@
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = "<div class=\"numpad\">\n  <div class=\"numpad-header\">\n    <strong class=\"title\">{{label}}</strong>\n\n    {{#if input}}\n    <div class=\"input-group {{#if input.toggle}}input-toggle{{/if}}\">\n      {{#if input.left}}\n        {{#if input.left.addOn}}<span class=\"input-group-addon\">{{{input.left.addOn}}}</span>{{/if}}\n        {{#if input.left.btn}}<span class=\"input-group-btn\"><a href=\"#\" data-btn=\"left\">{{{input.left.btn}}}</a></span>{{/if}}\n      {{/if}}\n      <input type=\"text\" name=\"value\" class=\"form-control autogrow\">\n      {{#if input.right}}\n        {{#if input.right.btn}}<span class=\"input-group-btn\"><a href=\"#\" data-btn=\"right\">{{{input.right.btn}}}</a></span>{{/if}}\n        {{#if input.right.addOn}}<span class=\"input-group-addon\">{{{input.right.addOn}}}</span>{{/if}}\n      {{/if}}\n    </div>\n    {{/if}}\n\n  </div>\n\n  <div class=\"numpad-keys\">\n    <div class=\"keys common\">\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"1\" class=\"btn\">1</a>\n        <a href=\"#\" data-key=\"2\" class=\"btn\">2</a>\n        <a href=\"#\" data-key=\"3\" class=\"btn\">3</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"4\" class=\"btn\">4</a>\n        <a href=\"#\" data-key=\"5\" class=\"btn\">5</a>\n        <a href=\"#\" data-key=\"6\" class=\"btn\">6</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"7\" class=\"btn\">7</a>\n        <a href=\"#\" data-key=\"8\" class=\"btn\">8</a>\n        <a href=\"#\" data-key=\"9\" class=\"btn\">9</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"0\" class=\"btn\">0</a>\n        <a href=\"#\" data-key=\"00\" class=\"btn\">00</a>\n        <a href=\"#\" data-key=\".\" class=\"btn decimal\">{{{decimal}}}</a>\n      </div>\n    </div>\n    <div class=\"keys common extra-keys\">\n      <a href=\"#\" data-key=\"del\" class=\"btn\"><i class=\"icon icon-delete\"><span>del</span></i></a>\n      <a href=\"#\" data-key=\"+/-\" class=\"btn\">+/-</a>\n      <a href=\"#\" data-key=\"ret\" class=\"btn return\">{{return}}</a>\n    </div>\n\n    {{#if keys}}\n      <div class=\"keys extra-keys\">\n        {{#each keys}}\n          <a href=\"#\" data-key=\"{{this}}\" class=\"btn\">{{this}}</a>\n        {{/each}}\n      </div>\n    {{/if}}\n\n  </div>\n</div>"
+	module.exports = "<div class=\"numpad numpad-{{numpad}}\">\n  <div class=\"numpad-header\">\n    <strong class=\"title\">{{label}}</strong>\n\n    {{#if input}}\n    <div class=\"input-group {{#if input.toggle}}input-toggle{{/if}}\">\n      {{#if input.left}}\n        {{#if input.left.addOn}}<span class=\"input-group-addon\">{{{input.left.addOn}}}</span>{{/if}}\n        {{#if input.left.btn}}<span class=\"input-group-btn\"><a href=\"#\" data-btn=\"left\">{{{input.left.btn}}}</a></span>{{/if}}\n      {{/if}}\n      <input type=\"text\" name=\"value\" class=\"form-control autogrow\" readonly=\"readonly\">\n      {{#if input.right}}\n        {{#if input.right.btn}}<span class=\"input-group-btn\"><a href=\"#\" data-btn=\"right\">{{{input.right.btn}}}</a></span>{{/if}}\n        {{#if input.right.addOn}}<span class=\"input-group-addon\">{{{input.right.addOn}}}</span>{{/if}}\n      {{/if}}\n    </div>\n    {{/if}}\n\n  </div>\n\n  <div class=\"numpad-keys\">\n    <div class=\"keys common\">\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"1\" class=\"btn\">1</a>\n        <a href=\"#\" data-key=\"2\" class=\"btn\">2</a>\n        <a href=\"#\" data-key=\"3\" class=\"btn\">3</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"4\" class=\"btn\">4</a>\n        <a href=\"#\" data-key=\"5\" class=\"btn\">5</a>\n        <a href=\"#\" data-key=\"6\" class=\"btn\">6</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"7\" class=\"btn\">7</a>\n        <a href=\"#\" data-key=\"8\" class=\"btn\">8</a>\n        <a href=\"#\" data-key=\"9\" class=\"btn\">9</a>\n      </div>\n      <div class=\"row\">\n        <a href=\"#\" data-key=\"0\" class=\"btn\">0</a>\n        <a href=\"#\" data-key=\"00\" class=\"btn\">00</a>\n        <a href=\"#\" data-key=\".\" class=\"btn decimal\">{{{decimal}}}</a>\n      </div>\n    </div>\n    <div class=\"keys common extra-keys\">\n      <a href=\"#\" data-key=\"del\" class=\"btn\"><i class=\"icon icon-delete\"><span>del</span></i></a>\n      <a href=\"#\" data-key=\"+/-\" class=\"btn\">+/-</a>\n      <a href=\"#\" data-key=\"ret\" class=\"btn return\">{{return}}</a>\n    </div>\n\n    {{#if keys}}\n      <div class=\"keys extra-keys {{numpad}}\">\n        {{#each keys}}\n          <a href=\"#\" data-key=\"{{this}}\" class=\"btn\">{{this}}</a>\n        {{/each}}\n      </div>\n    {{/if}}\n\n  </div>\n</div>"
 
 /***/ },
 /* 14 */

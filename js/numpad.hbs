@@ -1,4 +1,4 @@
-<div class="numpad">
+<div class="numpad numpad-{{numpad}}">
   <div class="numpad-header">
     <strong class="title">{{label}}</strong>
 
@@ -8,7 +8,7 @@
         {{#if input.left.addOn}}<span class="input-group-addon">{{{input.left.addOn}}}</span>{{/if}}
         {{#if input.left.btn}}<span class="input-group-btn"><a href="#" data-btn="left">{{{input.left.btn}}}</a></span>{{/if}}
       {{/if}}
-      <input type="text" name="value" class="form-control autogrow">
+      <input type="text" name="value" class="form-control autogrow" readonly="readonly">
       {{#if input.right}}
         {{#if input.right.btn}}<span class="input-group-btn"><a href="#" data-btn="right">{{{input.right.btn}}}</a></span>{{/if}}
         {{#if input.right.addOn}}<span class="input-group-addon">{{{input.right.addOn}}}</span>{{/if}}
@@ -48,7 +48,7 @@
     </div>
 
     {{#if keys}}
-      <div class="keys extra-keys">
+      <div class="keys extra-keys {{numpad}}">
         {{#each keys}}
           <a href="#" data-key="{{this}}" class="btn">{{this}}</a>
         {{/each}}

@@ -7,22 +7,23 @@ var $ = require('jquery');
 var accounting = global['accounting'];
 
 // numpad header input btns
+// - could be improved if _.result allowed custom bind?
 var inputBtns = {
   amount: function(){
     return {
-      left: { addOn: accounting.settings.currency.symbol }
+      left: { addOn: this.symbol }
     };
   },
   discount: function(){
     return {
-      left: { btn: accounting.settings.currency.symbol },
+      left: { btn: this.symbol },
       right: { btn: '%' },
       toggle: true
     };
   },
   cash: function(){
     return {
-      left: { addOn: accounting.settings.currency.symbol }
+      left: { addOn: this.symbol }
     };
   },
   quantity: function(){
@@ -34,6 +35,7 @@ var inputBtns = {
 };
 
 // numpad extra keys
+// - could be improved if _.result allowed custom bind?
 var extraKeys = {
   amount: function(){},
   discount: function(){
@@ -48,23 +50,18 @@ module.exports = Mn.ItemView.extend({
   template: hbs.compile(tmpl),
 
   viewOptions: [
-    'target', 'parent', 'numpad', 'label', 'decimal', 'name', 'value'
+    'numpad', 'label', 'value', 'decimal', 'symbol'
   ],
 
   initialize: function(options){
     options = options || {};
 
-    // get name and value from target / parent.model
-    options.name = options.target ? options.target.attr('name') : 'numpad';
-    if(options.parent){
-      options.value = options.parent.model.get(options.name);
-    } else {
-      options.value = 0;
-    }
-
     options = _.defaults(options, {
+      label   : 'Numpad',
       numpad  : 'amount',
-      decimal : accounting.settings.currency.decimal
+      value   : 0,
+      decimal : accounting.settings.currency.decimal,
+      symbol  : accounting.settings.currency.symbol
     });
 
     this.mergeOptions(options, this.viewOptions);
@@ -82,14 +79,52 @@ module.exports = Mn.ItemView.extend({
   },
 
   bindings: {
-    'input[name="value"]': 'value'
+    'input[name="value"]': {
+      observe: ['value', 'percentage', 'active'],
+      onGet: function(arr){
+        if(arr[2] === 'percentage'){
+          return accounting.formatNumber(arr[1]);
+        } else {
+          return accounting.formatNumber(arr[0]);
+        }
+      },
+      onSet: function(val){
+        val = accounting.unformat(val);
+        if(this.model.get('active') === 'percentage'){
+          this.model.set({ percentage: val });
+        } else {
+          this.model.set({ value: val });
+        }
+      }
+    },
+    '.numpad-discount [data-btn="left"]': {
+      observe: ['value', 'percentage', 'active'],
+      onGet: function(arr){
+        if(arr[2] === 'percentage'){
+          return accounting.formatMoney(arr[0]);
+        } else {
+          return this.symbol;
+        }
+      }
+    },
+    '.numpad-discount [data-btn="right"]': {
+      observe: ['percentage', 'value', 'active'],
+      onGet: function(arr){
+        if(arr[2] === 'percentage'){
+          return '%';
+        } else {
+          return accounting.toFixed(arr[0], 0) + '%';
+        }
+      }
+    }
   },
 
   templateHelpers: function(){
     var data = {
+      numpad  : this.numpad,
       label   : this.label,
-      input   : inputBtns[this.numpad](),
-      keys    : extraKeys[this.numpad](this.value),
+      input   : inputBtns[this.numpad].call(this),
+      keys    : extraKeys[this.numpad].call(this, this.value),
       decimal : this.decimal,
       'return': 'return'
     };
@@ -98,15 +133,32 @@ module.exports = Mn.ItemView.extend({
   },
 
   ui: {
+    input   : '.numpad-header input',
+    toggle  : '.numpad-header .input-group',
     common  : '.numpad-keys .common .btn',
     discount: '.numpad-keys .discount .btn',
     cash    : '.numpad-keys .cash .btn'
   },
 
   events: {
+    'click @ui.toggle a': 'toggle',
     'click @ui.common'  : 'commonKeys',
     'click @ui.discount': 'discountKeys',
     'click @ui.cash'    : 'cashKeys'
+  },
+
+  toggle: function(e){
+    e.preventDefault();
+    var modifier = $(e.currentTarget).data('btn');
+
+    if(this.numpad === 'quantity'){
+      this.model.quantity( modifier === 'right' ? 'increase' : 'decrease' );
+    }
+
+    if(this.numpad === 'discount'){
+      this.ui.toggle.toggleClass('toggle');
+      this.model.toggle('percentage');
+    }
   },
 
   /* jshint -W074 */
@@ -116,8 +168,7 @@ module.exports = Mn.ItemView.extend({
 
     switch(key) {
       case 'ret':
-        this.trigger('input');
-        this.target.popover('hide');
+        this.trigger('input', this.model.get('value'), this.model);
         return;
       case 'del':
         if(this.selected) {
@@ -143,10 +194,18 @@ module.exports = Mn.ItemView.extend({
 
   discountKeys: function(e){
     e.preventDefault();
+    var key = $(e.currentTarget).data('key');
+    this.model.set({
+      active: 'percentage',
+      percentage: key.replace('%', '')
+    });
+    this.ui.toggle.addClass('toggle');
   },
 
   cashKeys: function(e){
     e.preventDefault();
+    var key = $(e.currentTarget).data('key');
+    this.model.clearInput().key(key);
   }
 
 });

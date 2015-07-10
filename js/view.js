@@ -57,16 +57,17 @@ module.exports = Mn.ItemView.extend({
     options = options || {};
 
     options = _.defaults(options, {
-      label   : 'Numpad',
-      numpad  : 'amount',
-      value   : 0,
-      decimal : accounting.settings.currency.decimal,
-      symbol  : accounting.settings.currency.symbol
+      label     : 'Numpad',
+      numpad    : 'amount',
+      value     : 0,
+      decimal   : accounting.settings.currency.decimal,
+      symbol    : accounting.settings.currency.symbol,
+      precision : accounting.settings.number.precision
     });
 
     this.mergeOptions(options, this.viewOptions);
 
-    this.model = new Model({ value: this.value }, options);
+    this.model = new Model({}, options);
   },
 
   render: function(){
@@ -160,13 +161,13 @@ module.exports = Mn.ItemView.extend({
 
     switch(key) {
       case 'ret':
-        this.trigger('input', this.model.get('value'), this.model);
+        this.trigger('input', this.model.getFloatValue(), this.model);
         return;
       case 'del':
         if(this.selected) {
           this.model.clearInput();
         }
-        this.model.backspace();
+        this.model.backSpace();
         break;
       case '+/-':
         this.model.plusMinus();
